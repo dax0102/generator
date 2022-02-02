@@ -36,7 +36,7 @@ async function update(dir) {
   
   workspace.forEach(async (path) => {
     spinner.start();
-    const file = await fs.readFile(`${dir}/${path}`, 'utf8');
+    const file = await fs.readFile(`${folder}/${path}`, 'utf8');
     
     let characters = updateTriggers(file);
     await fs.writeFile(`${folder}/${path}`, characters);
