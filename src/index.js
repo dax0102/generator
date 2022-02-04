@@ -39,6 +39,7 @@ async function update(dir) {
     const file = await fs.readFile(`${folder}/${path}`, 'utf8');
     
     let characters = updateTriggers(file);
+
     await fs.writeFile(`${folder}/${path}`, characters);
     spinner.stop();
     console.log('Success');
