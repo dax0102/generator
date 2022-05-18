@@ -2,7 +2,6 @@ import { promises as fs } from 'fs';
 import ora from 'ora';
 import { updateTriggers, generateEffect }from './characters.js';
 import inquirer from "inquirer";
-import path from "path";
 
 inquirer
   .prompt([
@@ -14,6 +13,7 @@ inquirer
         'update character triggers', 
         'generate character scripted effects',
         'generate goal gfx shine',
+        'generate effects',
         'remove ideologies in military'
       ]
     },
@@ -33,6 +33,9 @@ inquirer
         break;
       case 'generate goal gfx shine':
         generateShine(answers.directory.trim());
+        break;
+      case 'generate effects':
+        writeEffects(answers.directory.trim())
         break;
       case 'remove ideologies in military':
         remove(answers.directory.trim());
@@ -197,4 +200,89 @@ async function generate(dir) {
   }
   spinner.stop();
   await fs.writeFile(`${dir}/common/scripted_effects/_minister_effects.txt`, data);
+}
+
+async function writeEffects(dir) {
+  const source = `${dir}/common/country_leader/00_minister_traits.txt`;
+  const file = await fs.readFile(source, 'utf-8');
+  const src = file.split('\n');
+
+  const arr = src.filter((s) => {
+    return s.includes('hog_') || s.includes('for_') || s.includes('eco_')
+      || s.includes('sec_') || s.includes('cos_') || s.includes('carm_')
+      || s.includes('cnav_') || s.includes('cair_')
+  });
+  const traits = {};
+  arr.forEach((str) => {
+    let trait = str.substring(0, str.indexOf('=')).trim();
+    if (trait.includes('hog')) {
+      let a = traits['hog'];
+      if (a) {
+        traits['hog'] = [...a, ...[trait]];
+      } else {
+        traits['hog'] = [trait];
+      }
+    } else if (trait.includes('for_')) {
+      let a = traits['for'];
+      if (a) {
+        traits['for'] = [...a, ...[trait]];
+      } else {
+        traits['for'] = [trait];
+      }
+    } else if (trait.includes('eco_')) {
+      let a = traits['eco'];
+      if (a) {
+        traits['eco'] = [...a, ...[trait]];
+      } else {
+        traits['eco'] = [trait];
+      }
+    } else if (trait.includes('sec_')) {
+      let a = traits['sec'];
+      if (a) {
+        traits['sec'] = [...a, ...[trait]];
+      } else {
+        traits['sec'] = [trait];
+      }
+    } else if (trait.includes('cos_')) {
+      let a = traits['cos'];
+      if (a) {
+        traits['cos'] = [...a, ...[trait]];
+      } else {
+        traits['cos'] = [trait];
+      }
+    } else if (trait.includes('carm_')) {
+      let a = traits['carm'];
+      if (a) {
+        traits['carm'] = [...a, ...[trait]];
+      } else {
+        traits['carm'] = [trait];
+      }
+    } else if (trait.includes('cnav_')) {
+      let a = traits['cnav'];
+      if (a) {
+        traits['cnav'] = [...a, ...[trait]];
+      } else {
+        traits['cnav'] = [trait];
+      }
+    } else if (trait.includes('cair_')) {
+      let a = traits['cair'];
+      if (a) {
+        traits['cair'] = [...a, ...[trait]];
+      } else {
+        traits['cair'] = [trait];
+      }
+    }
+  });
+
+  let content = "# Auto-Generated; use the tool";
+  Object.keys(traits).forEach((key) => {
+    content = content.concat(`\n\nremove_every_${key}_trait = {`);
+    content = content.concat('\n\thidden_effect = {');
+    traits[key].forEach((trait) => {
+      content = content.concat(`\n\t\tremove_ideas_with_trait = ${trait}`);
+    });
+    content = content.concat('\n\t}');
+    content = content.concat('\n}')
+  })
+  await fs.writeFile(`${dir}/common/scripted_effects/FX_automated_effects.txt`, content);
 }
