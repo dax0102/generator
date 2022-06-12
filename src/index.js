@@ -14,6 +14,7 @@ inquirer
         'generate character scripted effects',
         'generate goal gfx shine',
         'generate effects',
+        'remove chief',
         'remove ideologies in military'
       ]
     },
@@ -37,11 +38,59 @@ inquirer
       case 'generate effects':
         writeEffects(answers.directory.trim())
         break;
+      case 'remove chief':
+        removeChiefs(answers.directory.trim());
+        break;
       case 'remove ideologies in military':
         remove(answers.directory.trim());
         break;
     }
   });
+
+async function removeChiefs(dir) {
+  const source = `${dir}/common/characters`;
+  const folder = await fs.readdir(source);
+  folder.forEach(async (path) => {
+    const file = await fs.readFile(`${source}/${path}`, 'utf8');
+    const src = file.split('\n');
+
+    let newArr = [];
+    src.forEach((str) => {
+      let s = str;
+      //console.log(str);
+      if (!str.includes('slot')) {
+        if (str.includes('head_of_government')) {
+          s = "XXXXX";
+          //s = str.replace('chief_of_staff', '');
+          //console.log(s);
+        } else if (str.includes('foreign_minister')) {
+          s = "XXXXX";
+          //s = str.replace('chief_of_army', '');
+          //console.log(s);
+        } else if (str.includes('economy_minister')) {
+          s = "XXXXX";
+          //s = str.replace('chief_of_navy', '');
+          //console.log(s);
+        } else if (str.includes('security_minister')) {
+          s = "XXXXX";
+          //console.log(s);
+          //s = str.replace('chief_of_air_force', '');
+        } else if (str.includes('chief_of_staff')) {
+          s = "XXXXX"
+        } else if (str.includes('chief_of_army')) {
+          s = "XXXXX"
+        } else if (str.includes('chief_of_navy')) {
+          s = "XXXXX"
+        } else if (str.includes('chief_of_air_force')) {
+          s = "XXXXX"
+        }
+      }
+      newArr.push(s);
+    });
+    newArr = newArr.filter((s) => !s.includes('XXXXX'));
+    await fs.writeFile(`${source}/${path}`, newArr.join('\n'));
+  })
+}
 
 async function remove(dir) {
   const source = `${dir}/common/characters`;
